@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        body {
+            background-image: url(bg.png);
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        h1 {
+            color: yellowgreen;
+        }
+
+        #myImg {
+            position: absolute;
+            top: 100px;
+            left: 0px
+        }
+
+        #khavanu {
+            position: absolute;
+            left: 300px;
+            top: 300px;
+        }
+
+        #btn {
+            background-color: transparent;
+            color: yellowgreen;
+            border: none;
+            padding: 10px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        #gameOverScreen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: black;
+            z-index: 9999;
+        }
+
+        #gameOverScreen img {
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+        }
+    </style>
+</head>
+
+<body onkeyup="checkInput(event)">
+    <h1>Current Life: <span id="currentLifeSpan">3</span>, Current Score : <span id="currentScoreSpan">0</span> <button
+            id="btn" onclick="onBgMusic()">Music</button></h1>
+
+    <img src="snakeR.png" id="myImg">
+    <img src="Apple.png" id="khavanu" onclick="changeKhavanuPosition()">
+
+    <audio src="eat.mp3" id="eatSound"></audio>
+    <audio src="gameOver.mp3" id="gameOverSound"></audio>
+    <audio src="loseLife.wav" id="loseLifeSound"></audio>
+    <audio src="background.mp3" id="backgroundSound" loop></audio>
+
+    <div id="gameOverScreen">
+        <img src="gameOver.png" alt="Game Over" />
+    </div>
+    <script>
+        function onBgMusic() {
+            document.getElementById("backgroundSound").volume = 0.5;
+            document.getElementById("backgroundSound").play();
+
+        }
+        currentX = 0; // position of snake X
+        currentY = 100; // position of snake Y
+        intRef = 0;
+        currentLife = 3; // life of snake
+        currentScore = -1; // score
+
+        khavanuX = 300; // position of apple X
+        khavanuY = 300; // position of apple Y
+
+        currentSpeed = 10; // speed of snake
+
+        function checkInput(e) {      // function for movement of snake
+            if (e.key == "ArrowUp") {
+                startTop();
+            }
+            if (e.key == "ArrowDown") {
+                startBottom();
+            }
+            if (e.key == "ArrowLeft") {
+                startLeft();
+            }
+            if (e.key == "ArrowRight") {
+                startRight();
+            }
+        }
+
+        // logic for movement of snake
+        function startRight() {  // logic of start right
+            clearInterval(intRef);
+            intRef = setInterval(moveRight, currentSpeed);
+        }
+        function moveRight() {
+            currentX++;
+            imgRef = document.getElementById("myImg");
+            imgRef.src = "snakeR.png";
+            imgRef.style.left = currentX + "px";
+            checkLimit();
+        }
+
+        function startLeft() {  // logic of start left
+            clearInterval(intRef);
+            intRef = setInterval(moveLeft, currentSpeed);
+        }
+        function moveLeft() {
+            currentX--;
+            imgRef = document.getElementById("myImg");
+            imgRef.src = "snakeL.png";
+            imgRef.style.left = currentX + "px";
+            checkLimit();
+        }
+
+        function startTop() {  // logic of start top
+            clearInterval(intRef);
+            intRef = setInterval(moveTop, currentSpeed);
+        }
+        function moveTop() {
+            currentY--;
+            imgRef = document.getElementById("myImg");
+            imgRef.src = "snakeT.png";
+            imgRef.style.top = currentY + "px";
+            checkLimit();
+        }
+
+        function startBottom() {  // logic of start bottom
+            clearInterval(intRef);
+            intRef = setInterval(moveBottom, currentSpeed);
+        }
+        function moveBottom() {
+            currentY++;
+            imgRef = document.getElementById("myImg");
+            imgRef.src = "snakeB.png";
+            imgRef.style.top = currentY + "px";
+            checkLimit();
+        }
+
+
+        function checkLimit() {
+            if (currentX > screen.availWidth - 85 || currentX < 0  // function of border from where snake can't go
+                || currentY > screen.availHeight - 85 || currentY < 0) { // - 85px because snake width
+                document.getElementById("loseLifeSound").play(); // play sound when snake hits border
+                currentLife--;
+                currentX = screen.availWidth / 2;   // new position of snake X
+                currentY = screen.availHeight / 2;  // new position of snake Y
+                document.getElementById("currentLifeSpan").innerHTML = currentLife; // current life logic
+            }
+            if (currentLife <= 0) {   // game over logic
+                document.getElementById("gameOverSound").play();
+                document.getElementById("backgroundSound").pause();
+                document.getElementById("gameOverScreen").style.display = "block";
+                clearInterval(intRef);
+            }
+            if ((khavanuX < currentX + 100 && khavanuX > currentX - 100)  // border of apple for random position
+                && (khavanuY < currentY + 100 && khavanuY > currentY - 100)) {
+                document.getElementById("eatSound").play(); // play sound when snake eats apple
+                changeKhavanuPosition();
+            }
+        }
+
+        function changeKhavanuPosition() {
+            currentScore++;
+            if (currentScore >= 5) {
+                currentSpeed = 5;
+            }
+            if (currentScore >= 10) {
+                currentSpeed = 3;
+            }
+            document.getElementById("currentScoreSpan").innerHTML = currentScore;
+            khavanuX = parseInt(Math.random() * (screen.availWidth - 100));
+            khavanuY = parseInt(Math.random() * (screen.availHeight - 100));
+
+            khavanuRef = document.getElementById("khavanu");
+            khavanuRef.style.left = khavanuX + "px";
+            khavanuRef.style.top = khavanuY + "px";
+        }
+
+        changeKhavanuPosition();
+    </script>
+</body>
+
+</html>
